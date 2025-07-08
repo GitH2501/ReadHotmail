@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', path='src/assets/main.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', path='src/assets/style.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+  </head>
+
+  <body id="body">
+    <!-- Header -->
+    <header>
+      <div class="header">
+        <div class="left">
+          <img src="{{ url_for('static', path='publish/logout.png') }}" alt="Logout" onclick="logoutEvent()" />
+          <div class="divider"></div>
+          <img src="{{ url_for('static', path='publish/setting.png') }}" alt="Setting" data-bs-toggle="modal" data-bs-target="#exampleModal"  />
+        </div>
+      </div>
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Settings</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-lg-4 text-end">
+                <label class="form-check-label" for="autoLogin"><b>Auto login:</b></label>
+                <br>
+                <label for="profileFolder" class="form-label mt-3 "><b>Profiles folder:</b></label>
+              
+              </div>
+              <div class="col-lg-8">
+                <input type="checkbox" class="form-check-input" id="autoLogin">
+                <br>
+                <input type="text" class="form-control mt-3" id="profileFolder" value=""></div>
+            <div class="modal-footer">
+              <div class="row">
+                    <div class="col-lg-5"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button></div>
+                    <div class="col-lg-7"><button onclick="saveSettings()"  style="width: 160px;"  type="button" class="btn btn-dark">Save Settings</button> </div>
+              </div>
+              
+            </div>
+          </div>
+        </div></div>
+    </header>
+    <!-- Main: Account List -->
+    <main>
+      <div class="main-top-container">
+        <div class="main-top"></div>
+        <div class="main-top-right">
+          <input type="file" id="fileInput" style="display:none" />
+          <div class="action-button import-button" onclick="document.getElementById('fileInput').click()">
+            <img src="{{ url_for('static', path='publish/import.png') }}" alt="" style="max-width:20px" />
+            <span>Import</span>
+          </div>
+          <div class="action-button getToken-button disabled" id="get_token" onclick="getTokenEvent()">
+            <img src="{{ url_for('static', path='publish/get_token.png') }}" alt="" style="max-width:20px" />
+            <span>Get token</span>
+          </div>
+        </div>
+      </div>
+      <hr />
+      
+      <!-- Progress Bar Container -->
+      <div id="progressContainer">
+        <progress id="progressBar" value="0" max="100"></progress>
+        <div id="status">0%</div>
+      </div>
+      <div id="table"></div>
+      <div id="message"></div>
+    </main>
+    <hr>    
+    <!-- Footer -->
+    <div class="current-page-info" id="page-info">
+      Trang 0 - Hiển thị 0 items/trang - Tổng: 0 items
+    </div>
+    <footer>
+      
+      <div class="pagination-container">
+        
+        <div id="panigate_page">
+          <ul>
+            <li>
+              <button onclick="fetchPage($i)" disabled>0</button>
+            </li>
+          </ul>
+        </div>
+        
+      </div>
+
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', path='src/js/main.js') }}"></script>
+  </body>
+</html>
+

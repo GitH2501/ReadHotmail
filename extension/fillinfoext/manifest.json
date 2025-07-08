@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "KDP Info",
+  "version": "1.0",
+  "description": "Addon auto fill info",
+  "action": {
+    "default_icon": "icon.png"
+  },
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "permissions": [
+    "tabs",
+    "scripting",
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=*",
+    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=*",
+    "https://login.live.com/oauth20_authorize.srf?client_id=*",
+    "https://kdp.amazon.com/*",
+    "https://thenewmoonteam.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=*",
+        "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=*",
+        "https://login.live.com/oauth20_authorize.srf?client_id=*",
+        "https://kdp.amazon.com/*",
+        "https://thenewmoonteam.com/*"
+      ],
+      "js": [
+        "js/jquery.js",
+        "content.js"
+      ],
+      "css": [
+        "js/my.css"
+      ],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ],
+  "icons": {
+    "48": "icon.png",
+    "96": "icon.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "js/jquery.js",
+        "js/my.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

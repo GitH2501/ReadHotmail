@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Input</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='src/assets/popup.css') }}" />
+</head>
+
+<body>
+    <div class="container">
+        <h2>Push code</h2>
+
+        <div class="input-group">
+            <label for="stringInput">Nhập URL : </label>
+            <input type="text" id="stringInput" placeholder="Nhập nội dung tại đây..." autocomplete="off">
+        </div>
+
+        <button id="submitBtn">Submit</button>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', path='src/js/popup.js') }}"></script>
+</body>
+
+</html>

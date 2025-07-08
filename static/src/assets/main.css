@@ -1,0 +1,424 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 10px;
+  border-bottom: 1px solid #ccc;
+  height: 45px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.left img {
+  max-width: 20px;
+  cursor: pointer;
+}
+
+.divider {
+  height: 20px;
+  width: 1px;
+  background-color: #aaa;
+}
+
+.right p {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+
+/* Main content */
+.main-top-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.main-top button {
+  margin-right: 15px;
+  padding: 10px 10px;
+}
+
+.main-top-right {
+  /* padding: 5% 10px; */
+  display: flex;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Khoảng cách giữa icon và text */
+  padding: 8px 12px;
+  color: black;
+  border: 2px solid #cccccc;
+  background-color: #cccccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-right: 10px;
+}
+
+.action-button:hover {
+  background-color: #686868;
+}
+
+.action-button img {
+  max-width: 20px;
+  height: auto;
+}
+
+main {
+  flex: 1;
+  padding: 1px;
+  overflow-y: auto;
+  gap: 20;
+}
+
+main .main-top {
+  display: flex;
+  gap: 3;
+
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+th.token-col, td.token-col {
+  max-width: 220px;
+  min-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+.ngangtoken {
+  max-width: 220px;
+  min-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+table {
+  table-layout: auto;
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+  padding: 5px;
+  border: 1px solid #f0efef;
+  text-align: left;
+}
+
+th {
+  color: black;
+
+}
+
+table td:last-child {
+  width: 50px;
+}
+
+tr:hover {
+  background-color: #f0efef;
+}
+
+.action-column {
+  display: flex;
+  /* align-items: center; */
+}
+
+.item-button {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  /* Khoảng cách giữa icon và text */
+  padding: 5px 5px;
+  color: black;
+  border: 2px solid #cccccc;
+  background-color: #cccccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 50px;
+  margin-right: 10px;
+}
+
+.item-button span {
+  color: rgb(43, 43, 43);
+  font-size: 13px;
+  font-weight: 550;
+
+}
+
+
+
+
+/* search style*/
+.search-container {
+  width: 100%;
+  /* max-width: 800px; */
+  display: flex;
+  border-radius: 5px;
+  overflow: hidden;
+  align-items: center;
+  /* căn giữa theo chiều dọc */
+  justify-content: center;
+  padding: 15px 0px;
+}
+
+.search-type {
+  border: none;
+  padding: 0 15px;
+  height: 50px;
+  background-color: #fff;
+  border: 2px solid #c9c9c9;
+  border-right: 1px solid #e0e0e0;
+  outline: none;
+  font-size: 16px;
+  border-radius: 5px;
+  margin: 0px 15px;
+}
+
+.search-input {
+  flex-grow: 1;
+  height: 50px;
+  border: none;
+  padding: 0 15px;
+  outline: none;
+  font-size: 16px;
+  border-radius: 5px;
+  color: black;
+  margin: 0px 15px;
+}
+
+.search-button {
+  background-color: #cccccc;
+  color: black;
+  border: none;
+  padding: 0 20px;
+  height: 50px;
+  max-width: 150px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+  border-radius: 5px;
+  margin: 0px 15px;
+}
+
+.search-button p {
+  color: black;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.search-button:hover {
+  background-color: #cccccc;
+}
+
+.search-icon {
+  margin-right: 8px;
+}
+
+footer {
+  background: white;
+  color: #333;
+  padding: 20px 0;
+  text-align: center;
+  border-top: 1px solid #ddd;
+}
+
+.pagination-container {
+  margin-top: 5px;
+}
+
+#panigate_page ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  gap: 5px;
+}
+
+#panigate_page li {
+  display: inline-block;
+}
+
+#panigate_page button {
+  background: white;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+#panigate_page button:hover:not(:disabled) {
+  background: #333;
+  color: white;
+  border-color: #333;
+}
+
+/* Nút số trang bị disabled (trang hiện tại) */
+#panigate_page button:disabled:not(.nav-btn) {
+  background: #333;
+  color: white;
+  border-color: #333;
+  cursor: not-allowed;
+}
+
+/* Nút điều hướng Previous/Next bị disabled */
+#panigate_page button.nav-btn:disabled {
+  background: #e0e0e0;
+  color: #aaa;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Nút điều hướng Previous/Next */
+#panigate_page button.nav-btn {
+  font-weight: bold;
+  font-size: 16px;
+  padding: 8px 10px;
+  min-width: 35px;
+}
+
+/* Dots cho pagination */
+#panigate_page .dots {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 8px 12px;
+  color: #888;
+  font-weight: bold;
+  user-select: none;
+  font-size: 16px;
+}
+
+.footer-info {
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.current-page-info {
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  border-top: 1px solid #eee;
+}
+
+/* Progress Bar Styles */
+#progressContainer {
+  display: none;
+  margin: 20px auto;
+  max-width: 400px;
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#progressBar {
+  width: 100%;
+  height: 20px;
+  border-radius: 10px;
+  border: none;
+  background: #e9ecef;
+  margin-bottom: 10px;
+}
+
+#progressBar::-webkit-progress-bar {
+  background: #e9ecef;
+  border-radius: 10px;
+}
+
+#progressBar::-webkit-progress-value {
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+#progressBar::-moz-progress-bar {
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  border-radius: 10px;
+}
+
+#status {
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  margin-top: 5px;
+}
+
+@media (max-width: 600px) {
+  .search-container {
+    flex-direction: column;
+  }
+
+  .search-type {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+}
+.action-column {
+  display: flex;
+  justify-content: center;
+  /* Căn giữa nút trong cột */
+  align-items: center;
+}
+
+.item-button.start-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  /* Giảm padding ngang */
+  color: #757575;
+  background-color: #eaeaea;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-width: 80px;
+  /* Đảm bảo nút không quá nhỏ */
+  justify-content: center;
+  /* Căn giữa icon + text */
+}

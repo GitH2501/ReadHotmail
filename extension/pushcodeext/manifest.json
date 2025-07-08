@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "String Input Extension",
+  "version": "1.0",
+  "description": "Extension để nhập string và console log kết quả",
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "String Input Extension",
+    "default_icon": "icon.png"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": [
+    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=*",
+    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=*",
+    "https://login.live.com/oauth20_authorize.srf?client_id=*",
+    "https://kdp.amazon.com/*",
+    "https://thenewmoonteam.com/*",
+    "https://localhost/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=*",
+        "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=*",
+        "https://login.live.com/oauth20_authorize.srf?client_id=*",
+        "https://kdp.amazon.com/*",
+        "https://thenewmoonteam.com/*",
+        "https://localhost/*"
+      ],
+      "js": [
+        "jquery.js",
+        "content.js"
+      ],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ]
+}
