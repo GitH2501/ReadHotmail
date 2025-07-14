@@ -42,10 +42,10 @@ export async function pushTokenToHotmailDB(data) {
     let access_token = data.access_token;
     let refresh_token = data.refresh_token;
     let error = "Null";
-    let status = "Completed";
+    let completed = true;
     let profile_id = localStorage.getItem("profile_id");
 
-    let APIHOST = "http://192.168.1.104:8000";
+    let APIHOST = "http://192.168.1.77";
     let APIPOST = "/api/v1/profiles/"
 
     URL = `${APIHOST}${APIPOST}`
@@ -56,7 +56,7 @@ export async function pushTokenToHotmailDB(data) {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            profile_name, password, browser_id, access_token, refresh_token, error, status, profile_id
+            profile_name, password, browser_id, access_token, refresh_token, error, completed, profile_id
         })
     })
 
@@ -64,18 +64,23 @@ export async function pushTokenToHotmailDB(data) {
     if (!pushTokenResponse.ok) {
         const errorText = await pushTokenResponse.json();
         console.error("Lỗi ", errorText.detail);
-        return errorText.detail;
+        // return errorText;
+        return { success: false, message: errorText.detail, profile_id };
     } else {
         let pushTokenData = await pushTokenResponse.json();
 
         if (pushTokenResponse.status === 200) {
             const successText = "Push code success!!!"
             console.log(successText)
-            return successText
+        // return errorText;
+
+            return { success: true, message: successText, profile_id };
         } else {
             const errorText = "Push code failed!!!"
             console.log(errorText)
-            return errorText
+        // return errorText;
+
+            return { success: false, message: errorText, profile_id };
         }
     }
 

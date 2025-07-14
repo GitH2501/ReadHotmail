@@ -37,7 +37,7 @@ class Account(Model):
         conn = sqlite3.connect(self.model.database)
         cursor = conn.cursor()
         placeholders = ','.join(['?' for _ in ids])
-        cursor.execute(f'SELECT ID, Access_token, Refresh_token, Status FROM {self.table} WHERE ID IN ({placeholders})', ids)
+        cursor.execute(f'SELECT ID, Access_token, Refresh_token, Completed FROM {self.table} WHERE ID IN ({placeholders})', ids)
         rows = cursor.fetchall()
         result = []
         for row in rows:
@@ -45,7 +45,8 @@ class Account(Model):
                 'ID': row[0],
                 'Access_token': row[1],
                 'Refresh_token': row[2],
-                'Status': row[3]
+                # 'completed': row[3] == 1
+                'completed': int(row[3]) == 1
             }
             result.append(row_dict)
         conn.close()

@@ -20,7 +20,7 @@ async def gettoken_profile_task(request):
     print("ids", ids)
     # with concurrent.futures.ThreadPoolExecutor() as executor:
     #     futures = [executor.submit(checkTokenInAccount, data_hotmail_local) for i in range(profileCount)]
-    #     for future in concurrent.futures.as_completed(futures):
+    #     for future in concurrent.futures.as_Completed(futures):
     #         action_array.append(future.result())
 
     # print("Action array:", action_array)
@@ -35,7 +35,7 @@ async def gettoken_profile_task(request):
 
 def checkTokenInAccount(ids):
     if not ids:
-        print("Không có id nha pro")
+        print("không có id")
         return []
     list_data_account = account_model.readAccountForMultiID(ids)
 
@@ -45,26 +45,15 @@ def checkTokenInAccount(ids):
     if list_data_account:
         position = 0
         for row in list_data_account:
-            access_token = row['Access_token']
-            refresh_token = row['Refresh_token']
-            status = row['Status']
             id = row['ID']
-            if access_token and refresh_token and status.lower() == 'completed':
-                print("có completed")
-                action_array.append({
-                    'position': position,
-                    'ID': "",
-                    'action': '',
-                })
-            else:
-                print("không có completed")
-                action_array.append({
-                    'position': position,
-                    'ID': id,
-                    'action': 'start',
-                })
+            completed = row['completed']  # lấy đúng completed từ DB
+            action_array.append({
+                'position': position,
+                'ID': id if not completed else "",
+                'action': 'start' if not completed else '',
+                'completed': completed,
+            })
             position += 1
-
         return action_array
     else:
         print("không có list")

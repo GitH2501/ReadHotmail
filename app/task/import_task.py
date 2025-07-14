@@ -76,7 +76,7 @@ async def import_profile_task(file: UploadFile = File(...)):
         model.createDB()
         await clear_old_data()
         content = await file.read()
-        if file.filename.endswith(('.xlsx', '.xls')):
+        if file.filename and file.filename.endswith(('.xlsx', '.xls')):
             df = pd.read_excel(io.BytesIO(content))
             df = df.where(pd.notnull(df), None)
             table_data = df.to_dict("records")
@@ -190,10 +190,14 @@ async def write_sync_localdb_onlinedb_optimized(data_import: List[Dict]) -> bool
                 data_eoffice = api_result.get("eoffice", {})
                 
                 # Extract data
-                access_token = hotmail_data.get("access_token", "null") if hotmail_data else "null"
-                refresh_token = hotmail_data.get("refresh_token", "null") if hotmail_data else "null"
+                access_token = hotmail_data.get("access_token") if hotmail_data else None
+                refresh_token = hotmail_data.get("refresh_token") if hotmail_data else None
                 error = hotmail_data.get("error", "null") if hotmail_data else "null"
-                status = hotmail_data.get("status", "null") if hotmail_data else "null"
+                def is_valid_token(token):
+                    return token not in [None, '', 'null', 'None', 'NULL']
+                completed = bool(is_valid_token(access_token) and is_valid_token(refresh_token))
+                print(f"IMPORT PROFILE ID={profile_id} | access_token={access_token} ({type(access_token)}) | refresh_token={refresh_token} ({type(refresh_token)}) | completed={completed}")
+
                 
                 browser_id = data_eoffice.get("browser", {}).get("id") if data_eoffice else None
                 fingerprint_id = data_eoffice.get("id") if data_eoffice else None
@@ -207,7 +211,7 @@ async def write_sync_localdb_onlinedb_optimized(data_import: List[Dict]) -> bool
                     "Access_token": access_token,
                     "Refresh_token": refresh_token,
                     "error": error,
-                    "Status": status,
+                    "Completed": 1 if completed else 0,  # Đúng key schema
                     "Browser_id": browser_id,
                     "Fingerprint_id": fingerprint_id,
                 })
@@ -274,7 +278,7 @@ async def write_sync_localdb_onlinedb(data_import):
         access_token = hotmail_data.get("access_token", "null") if hotmail_data else "null"
         refresh_token = hotmail_data.get("refresh_token", "null") if hotmail_data else "null"
         error = hotmail_data.get("error", "null") if hotmail_data else "null"
-        status = hotmail_data.get("status", "null") if hotmail_data else "null"
+        completed = hotmail_data.get("Completed", "null") if hotmail_data else "null"
 
         browser_id = data_eoffice.get("browser", {}).get("id") if data_eoffice else None
         fingerprint_id = data_eoffice.get("id") if data_eoffice else None
@@ -289,7 +293,7 @@ async def write_sync_localdb_onlinedb(data_import):
                 "Access_token": access_token,
                 "Refresh_token": refresh_token,
                 "error": error,
-                "Status": status,
+                "Completed": completed,
                 "Browser_id": browser_id,
                 "Fingerprint_id": fingerprint_id,
             },
@@ -345,7 +349,7 @@ def render_template(table_data, context=None):
                     <th>Browser</th>
                     <th>Proxy</th>
                     <th>Token</th>
-                    <th>Status</th>
+                    <th>Completed</th>
                     <th>Action</th>
                 </tr>
             </thead>

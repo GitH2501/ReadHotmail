@@ -51,7 +51,7 @@ class Model:
                 Access_token TEXT,
                 Refresh_token TEXT,
                 Error TEXT,
-                Status TEXT,
+                Completed BOOLEAN DEFAULT 0,
                 Browser_id INTEGER,
                 Fingerprint_id INTEGER ,
                 FOREIGN KEY (Browser_id) REFERENCES browser(ID) ON DELETE CASCADE,
@@ -177,6 +177,9 @@ class Model:
         result = []
         for row in rows:
             row_dict = dict(zip(column_names, row))
+            # Convert Completed to boolean and assign to 'completed' key
+            if "Completed" in row_dict:
+                row_dict["completed"] = int(row_dict["Completed"]) == 1  # Luôn trả về True nếu Completed=1
             result.append(row_dict)
 
         return result

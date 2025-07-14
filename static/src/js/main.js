@@ -187,7 +187,7 @@ async function renderTableWithProgress(data) {
             <th>Browser</th>
             <th>Proxy</th>
             <th class="ngangtoken">Token</th>
-            <th>Status</th>
+            <th>Completed</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -199,7 +199,7 @@ async function renderTableWithProgress(data) {
               <td>${row["Browser"]}</td>
               <td>Http| ${row["Proxy_ip"]}:${row["Proxy_port"]}</td>
               <td class="ngangtoken" id="access_token">${row["Access_token"]}</td>
-              <td status-cell >${row["Status"]}</td>
+              <td status-cell >${row["completed"] === true ? "true" : "false"}</td>
               <td>
                 <div class="action-column">
                   <div class="item-button start-button disabled" data-id="${row['Profile_id']}" onclick="start_action_event(this)">
@@ -329,8 +329,8 @@ function updatePageInfo() {
 function renderTable(data) {
   // Sắp xếp để các profile có Status là 'Completed' lên đầu
   data.sort((a, b) => {
-    if ((a["Status"] === 'Completed' && b["Status"] !== 'Completed')) return -1;
-    if ((a["Status"] !== 'Completed' && b["Status"] === 'Completed')) return 1;
+    if ((a["completed"] === 'true' && b["completed"] !== 'true')) return -1;
+    if ((a["completed"] !== 'true' && b["completed"] === 'true')) return 1;
     return 0;
   });
   const html = data.map(row => `
@@ -340,7 +340,7 @@ function renderTable(data) {
                     <td>${row["Browser"]}</td>
                     <td>Http| ${row["Proxy_ip"]}:${row["Proxy_port"]}</td>
                     <td class="ngangtoken">${row["Access_token"]}</td>
-                    <td>${row["Status"]||""}</td>
+                    <td>${row["completed"] === true ? "true" : "false"}</td>
                     <td>
                         <div class="action-column">
                             <div class="item-button start-button disabled" data-id="${row['Profile_id']}" onclick="start_action_event(this)">
@@ -363,7 +363,7 @@ function renderTable(data) {
                     <th>Browser</th>
                     <th>Proxy</th>
                     <th class="ngangtoken">Token</th>
-                    <th>Status</th>
+                    <th>Completed</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -420,6 +420,12 @@ async function getTokenEvent() {
           // Tìm đúng nút theo data-id
           const btn = document.querySelector(`.start-button[data-id="${actionItem["ID"]}"]`);
           if (btn) btn.classList.remove("disabled");
+        }
+        // Cập nhật cột Completed
+        const row = document.querySelector(`.start-button[data-id="${actionItem["ID"]}"]`)?.closest("tr");
+        if (row && typeof actionItem["completed"] !== "undefined") {
+          const completedCell = row.querySelector("td[status-cell]") || row.querySelector("td:nth-child(6)");
+          if (completedCell) completedCell.textContent = actionItem["completed"] ? "true" : "false";
         }
       }
     } else {
@@ -484,7 +490,7 @@ async function getTokenEvent() {
 //     const btn = row.querySelector('.start-button');
 //     if (!btn) return;
 
-//     if (st === 'completed') {
+//     if (st === 'Completed') {
 //       btn.classList.add('disabled');
 //       btn.disabled = true;
 //     } else {
@@ -496,7 +502,7 @@ async function getTokenEvent() {
 
 
 
-// 2) Hàm Start — gọi backend để chạy, luôn re-enable nếu gặp lỗi, chỉ lock khi thật sự completed
+// 2) Hàm Start — gọi backend để chạy, luôn re-enable nếu gặp lỗi, chỉ lock khi thật sự Completed
 // async function start_action_event(el) {
 //   // const btn        = el;
 //   // const row        = btn.closest('tr');
@@ -507,7 +513,7 @@ async function getTokenEvent() {
 
 //   // // 2.1 Kiểm tra ban đầu
 //   // const st0 = (statusCell.textContent || '').trim().toLowerCase();
-//   // if (st0 === 'completed') {
+//   // if (st0 === 'Completed') {
 //   //   btn.classList.add('disabled');
 //   //   btn.disabled = true;
 //   //   return;
@@ -559,9 +565,9 @@ async function getTokenEvent() {
 //     //   statusCell.textContent = data.Status;
 //     // }
 
-//     // // 2.6 Disable chỉ khi backend trả về completed
+//     // // 2.6 Disable chỉ khi backend trả về Completed
 //     // const st1 = (data.Status || '').trim().toLowerCase();
-//     // if (st1 === 'completed') {
+//     // if (st1 === 'Completed') {
 //     //   btn.classList.add('disabled');
 //     //   btn.disabled = true;
 //     // } else {
@@ -624,45 +630,42 @@ async function start_action_event(element) {
   element.classList.add("starting");
   imageElement.style.display = "none";
 
-  if (profileID != null) {
-    ID = profileID;
-  } else {
-    ID = "null";
-  }
-  var response = await fetch("start__action", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id_profile: ID,
-    }),
-  })
-  const data = await response.json();
-  const id = data.ID;
-  const action = data.action;
-  const access_token = data.access_token;
+  let ID = profileID != null ? profileID : "null";
+  try {
+    var response = await fetch("start__action", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id_profile: ID,
+      }),
+    })
+    const data = await response.json();
+    const id = data.ID;
+    const action = data.action;
+    const access_token = data.access_token;
 
-  if (action === "start") {
     clearInterval(loadingInterval);
     imageElement.style.display = "block";
     startElement.innerHTML = "Start";
-    element.classList.remove("disabled");
     element.classList.remove("starting");
-    console.log(access_token)
-    if (access_token) {
-      console.log(access_token)
+
+    if (action === "start" && access_token) {
+      // Đã lấy token thành công, disable nút
+      element.classList.add("disabled");
     } else {
-      console.log("không có access_token")
+      // Không lấy được token, enable lại nút
+      element.classList.remove("disabled");
     }
-    
-
-
-
+  } catch (err) {
+    clearInterval(loadingInterval);
+    element.classList.remove("starting");
+    element.classList.remove("disabled");
+    startElement.innerHTML = "Start";
+    imageElement.style.display = "block";
+    console.error('Lỗi start_action_event:', err);
   }
-  
-  
-
 }
 
 function saveSettings() {

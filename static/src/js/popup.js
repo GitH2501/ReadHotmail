@@ -43,9 +43,25 @@ document.addEventListener('DOMContentLoaded', function () {
         if (gettoken_response) {
             let pushcode_response = await pushTokenToHotmailDB(gettoken_response)
 
-            showStatus(pushcode_response)
-            autoHideStatus()
 
+
+            // showStatus(pushcode_response)
+
+            // Nếu trả về object có success và profile_id
+            if (pushcode_response && pushcode_response.success && pushcode_response.profile_id) {
+                // Tìm đúng row theo profile_id (nếu có bảng profile trong popup)
+                const row = document.querySelector(`.start-button[data-id="${pushcode_response.profile_id}"]`)?.closest("tr");
+                if (row) {
+                    // Cập nhật cell Completed
+                    const completedCell = row.querySelector("td[status-cell]") || row.querySelector("td:nth-child(6)");
+                    if (completedCell) completedCell.textContent = "true";
+                    // Disable nút Start
+                    const startBtn = row.querySelector(".start-button");
+                    if (startBtn) startBtn.classList.add("disabled");
+                }
+            }
+            showStatus(pushcode_response.message || pushcode_response, pushcode_response.success ? 'success' : 'error');
+            autoHideStatus()
         }
 
     }

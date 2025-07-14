@@ -11,7 +11,7 @@ from config import ImportConfig
 
 class HotmailAPI:
 
-    API_HOST = "http://192.168.1.104:8000"
+    API_HOST = "http://192.168.1.77"
     
     def __init__(self, debug_mode=None):
         self.session = self._create_session()
