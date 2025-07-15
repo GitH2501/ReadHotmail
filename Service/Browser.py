@@ -36,6 +36,7 @@ class BrowserContext:
             "NVIDIA GeForce GTX 1050 Ti", "AMD Radeon RX 570", "Intel UHD Graphics 620",
             "Apple M1", "NVIDIA GeForce RTX 3080"
         ]
+        memory_options = [4, 8, 16, 32]
         random.shuffle(gpu_list)
 
         # Tạo fingerprint mặc định nếu không có sẵn
@@ -94,14 +95,34 @@ class BrowserContext:
                 "mediaSession": {
                     "playbackState": "none"
                 },
-                "deviceMemory": 8
+                "deviceMemory": random.choice(memory_options),
             }
         }
 
-    def build_js_injection(self,fp_json: dict):
+    def build_js_injection(self, fp_json: dict):
         bypass_js = bypass()
         return f"const DanaFP = {json.dumps(fp_json)};\n{bypass_js}"
-     
+
+    def load_extension(self):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        path_to_fill_info_ext = os.path.abspath(os.path.join(base_dir,"..", "extension", "fill_info_extension"))
+        path_to_proxy_auth_ext = os.path.abspath(os.path.join(base_dir,"..", "extension", "proxy_auth_extension"))
+
+
+        if not os.path.exists(path_to_fill_info_ext):
+            print(f"File extension không tồn tại: {path_to_fill_info_ext}")
+            return
+
+        if not os.path.exists(path_to_proxy_auth_ext):
+            print(f"File extension không tồn tại: {path_to_proxy_auth_ext}")
+            return
+        
+        ext_path = f"{path_to_fill_info_ext},{path_to_proxy_auth_ext}"
+        return ext_path
+
+    def create_user_data_dir(self, id_profile):
+        user_data_dir = create_dir_path_save_profile(id_profile)
+        return user_data_dir
 
     def run_browser(self):
         id_profile = self.data_profile['ID']
@@ -109,41 +130,79 @@ class BrowserContext:
         password = self.data_profile['Password']
         browser_id = self.data_profile['Browser_id']
         profile_id = self.data_profile['ID']
-
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        path_to_pushcode_ext = os.path.abspath(os.path.join(base_dir,"..", "extension", "pushcodeext"))
-        path_to_fillinfo_ext = os.path.abspath(os.path.join(base_dir,"..", "extension", "fillinfoext"))
-        #lưu profile ở đây
-        user_data_dir = create_dir_path_save_profile(id_profile)
-        # user_data_dir = os.path.join(os.getcwd(), "user_data")
+        proxy_ip = self.data_profile['Proxy_ip']
+        proxy_port = self.data_profile['Proxy_port']
+        proxy_user = self.data_profile['Proxy_user']
+        proxy_pass = self.data_profile['Proxy_pass']
+        proxy_type = self.data_profile['Proxy_type'].lower()
+         
         fp = self.generate_fingerprint()
-        inject_js = self.build_js_injection(fp)
-
-        if not os.path.exists(path_to_pushcode_ext):
-            print(f"File extension không tồn tại: {path_to_pushcode_ext}")
-            return
-        # ext_path = f"{path_to_pushcode_ext},{path_to_fillinfo_ext}"
-        ext_path = f"{path_to_fillinfo_ext}"
-
+        
+    
+        user_data_dir = self.create_user_data_dir(id_profile)
+        ext_path = self.load_extension()
+       
         with sync_playwright() as playwright:
             context = playwright.chromium.launch_persistent_context(
                 user_data_dir,
                 channel="chrome",
                 headless=False,
-                args=[
+                 args=[
                     f"--disable-extensions-except={ext_path}",
                     f"--load-extension={ext_path}",
                     "--disable-web-security",
                     "--disable-features=VizDisplayCompositor",
                     "--no-sandbox",
                     "--disable-dev-shm-usage",
-                    '--unsafely-treat-insecure-origin-as-secure=https://localhost'
+                    '--unsafely-treat-insecure-origin-as-secure=https://localhost',
+                    "--disable-blink-features=AutomationControlled",  
+                    "--exclude-switches=enable-automation",           
+                    "--disable-automation",                                         
+                    "--disable-infobars",                                    
+                    "--disable-default-apps",                                        
+                    "--no-first-run",                                         
+                    "--no-default-browser-check",                                 
+                    "--disable-backgrounding-occluded-windows",            
+                    "--disable-renderer-backgrounding",                      
+                    "--disable-background-timer-throttling",               
+                    "--disable-features=TranslateUI",                            
+                    "--disable-ipc-flooding-protection",                      
+                    "--disable-hang-monitor",                               
+                    "--disable-client-side-phishing-detection",                 
+                    "--disable-popup-blocking",                               
+                    "--disable-prompt-on-repost",                         
+                    "--disable-sync",                                     
+                    "--disable-domain-reliability",                             
+                    "--disable-component-update",                              
+                    "--disable-background-networking",                          
+                    "--metrics-recording-only",                      
+                    "--no-report-upload",                                  
+                    "--no-pings",                                     
+                    "--password-store=basic",                               
+                    "--use-mock-keychain",                                 
+                    "--mute-audio",                                     
+                    "--remote-debugging-port=0",                                 
+                    "--disable-logging",                                     
+                    "--disable-gpu-sandbox",                             
+                    "--disable-software-rasterizer",                            
+                    "--disable-background-timer-throttling",                 
+                    "--disable-features=VizDisplayCompositor,VizHitTestDrawQuad,TranslateUI",
+                    "--aggressive-cache-discard",                  
+                    "--disable-extensions-http-throttling",                       
+                    "--disable-component-extensions-with-background-pages",
+                    "--force-color-profile=srgb",                          
+                    "--hide-scrollbars",                                   
                 ],
                 user_agent=fp["navigator"]["userAgent"],
                 locale=fp["navigator"]["language"],
-                viewport={"width": 1280, "height": 720}
+                java_script_enabled=True,
+                accept_downloads=True,
+                ignore_https_errors=True,
+                bypass_csp=True,
             )
 
+            
+            inject_js = self.build_js_injection(fp)
             context.add_init_script(inject_js)
             
 
@@ -159,7 +218,6 @@ class BrowserContext:
                 }""",
                 { "username": username, "password": password,  "browser_id":browser_id, "profile_id":profile_id}
             )
-
 
 
             page = context.new_page()
@@ -224,8 +282,8 @@ class BrowserContext:
         return is_stop               
 
 
-if __name__ == "__main__":
-    b = BrowserContext()
-    # b.init_browser(id_profile="12345", browser="chrome", fingerprint=None)
-    # asyncio.run(b.run_browser())
-    b.run_browser()
+# if __name__ == "__main__":
+#     b = BrowserContext()
+#     # b.init_browser(id_profile="12345", browser="chrome", fingerprint=None)
+#     # asyncio.run(b.run_browser())
+#     b.run_browser()

@@ -1,18 +1,27 @@
 import sqlite3
 import json
-
+import tempfile
+import os
 
 class Model:
 
-    database = 'readhotmaildb.db'
-    def __init__(self):
+
+    # Đường dẫn đến cơ sở dữ liệu SQLite
+
+    # db_filename = 'readhotmaildb.db'
+    def __init__(self, db_filename = 'readhotmaildb.db'):
+        local_dir = os.environ.get("LOCALAPPDATA")
+        db_dir = os.path.join(local_dir, "tnmhotmail")
+        os.makedirs(os.path.dirname(db_dir), exist_ok=True)
+        self.database = os.path.join(db_dir, db_filename)
+        print(f"[DEBUG] Using DB at: {self.database}")
         self.conn = sqlite3.connect(self.database)
         self.cursor = self.conn.cursor()
         
         
     def createDB(self):
         
-
+        print(f"[DEBUG] Creating DB at111: {self.database}")
         conn = sqlite3.connect(self.database)
         cursor = conn.cursor()
         cursor.execute("PRAGMA journal_mode=WAL;")

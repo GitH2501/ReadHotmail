@@ -1,7 +1,7 @@
 // Khi mở modal, load giá trị hiện tại
 function loadSettings() {
-  $.get('/api/profile-folder', function(data) {
-      $('#profileFolder').val(data.profileFolder);
+  $.get('/api/profile-folder', function (data) {
+    $('#profileFolder').val(data.profileFolder);
   });
 }
 
@@ -9,14 +9,14 @@ function loadSettings() {
 function saveSettings() {
   var newFolder = $('#profileFolder').val();
   $.ajax({
-      url: '/api/profile-folder',
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({ profileFolder: newFolder }),
-      success: function(response) {
-          alert('Đã lưu đường dẫn mới!');
-          // Có thể reload lại app hoặc cập nhật UI nếu cần
-      }
+    url: '/api/profile-folder',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ profileFolder: newFolder }),
+    success: function (response) {
+      alert('Đã lưu đường dẫn mới!');
+      // Có thể reload lại app hoặc cập nhật UI nếu cần
+    }
   });
 }
 
@@ -29,22 +29,22 @@ function logoutEvent() {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
     })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.logout === "success") {
-        localStorage.removeItem('username');
-        localStorage.removeItem('password');
-        localStorage.removeItem('user');
-        localStorage.removeItem('pass');
-        
-        window.location.href = '/';
-      } else {
-        console.error('Đăng xuất thất bại:', data.message);
-      }
-    })
-    .catch((error) => {
-      console.error('Lỗi khi đăng xuất:', error);
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.logout === "success") {
+          localStorage.removeItem('username');
+          localStorage.removeItem('password');
+          localStorage.removeItem('user');
+          localStorage.removeItem('pass');
+
+          window.location.href = '/';
+        } else {
+          console.error('Đăng xuất thất bại:', data.message);
+        }
+      })
+      .catch((error) => {
+        console.error('Lỗi khi đăng xuất:', error);
+      });
   } catch (error) {
     console.error("Lỗi rồi nha pro:", error);
   }
@@ -82,15 +82,10 @@ document
         const limit = result.limit;
         const data = result.data;
 
-
-
-        // Cập nhật progress bar khi nhận được dữ liệu
         $('#progressBar').val(30);
         $('#status').text('30% - Đang xử lý dữ liệu...');
 
-        // Render table với progress dựa trên số lượng tài khoản thực tế
         await renderTableWithProgress(data);
-        // Hiện lại table sau khi render xong
         $('#table').show();
         $('#progressBar').val(100);
         $('#status').text('100% - Hoàn thành!');
@@ -172,11 +167,9 @@ async function renderTableWithProgress(data) {
     return;
   }
 
-  // Bắt đầu từ 30% (sau khi xóa dữ liệu cũ và nhận dữ liệu)
   let currentProgress = 30;
-  const progressStep = 60 / total; // 60% còn lại chia cho số lượng items
+  const progressStep = 60 / total;
 
-  // Render table structure
   document.getElementById("table").innerHTML = `
     <div class="table-wrapper">
       <table>
@@ -196,10 +189,10 @@ async function renderTableWithProgress(data) {
             <tr class="{{ loop.index0 }}">
               <td id="idProfile" class="id-profile">${row["Profile_id"]}</td>
               <td>${row["Profile_name"]}</td>
-              <td>${row["Browser"]}</td>
-              <td>Http| ${row["Proxy_ip"]}:${row["Proxy_port"]}</td>
+              <td>${row["Browser_type"]}</td>
+              <td>${row["Proxy_type"]}|| ${row["Proxy_ip"]}:${row["Proxy_port"]}</td>
               <td class="ngangtoken" id="access_token">${row["Access_token"]}</td>
-              <td status-cell >${row["completed"] === true ? "true" : "false"}</td>
+              <td status-cell >${row["completed"] === true ? "True" : "False"}</td>
               <td>
                 <div class="action-column">
                   <div class="item-button start-button disabled" data-id="${row['Profile_id']}" onclick="start_action_event(this)">
@@ -236,43 +229,33 @@ async function renderTableWithProgress(data) {
 function renderPaginate(total, page, limit) {
   const pages = Math.ceil(total / limit);
   const current = page;
-  
+
   // Tính toán range hiển thị (tối đa 5 trang)
   let startPage = Math.max(1, current - 2);
   let endPage = Math.min(pages, startPage + 4);
-  
+
   // Điều chỉnh startPage nếu endPage quá gần cuối
   if (endPage - startPage < 4 && pages > 5) {
     startPage = Math.max(1, endPage - 4);
   }
-  
+
   let html = '';
-  
-  // Nút Previous
   html += `<li><button onclick="fetchPage(${total},${Math.max(1, current - 1)}, ${limit})" ${current <= 1 ? 'disabled' : ''} class="nav-btn">‹</button></li>`;
-  
-  // Hiển thị trang đầu nếu không bắt đầu từ 1
   if (startPage > 1) {
     html += `<li><button onclick="fetchPage(${total},1, ${limit})">1</button></li>`;
     if (startPage > 2) {
       html += `<li><span class="dots">...</span></li>`;
     }
   }
-  
-  // Hiển thị các trang trong range
   for (let i = startPage; i <= endPage; i++) {
     html += `<li><button onclick="fetchPage(${total},${i}, ${limit})" ${i === current ? 'disabled' : ''}>${i}</button></li>`;
   }
-  
-  // Hiển thị trang cuối nếu không kết thúc ở pages
   if (endPage < pages) {
     if (endPage < pages - 1) {
       html += `<li><span class="dots">...</span></li>`;
     }
     html += `<li><button onclick="fetchPage(${total},${pages}, ${limit})">${pages}</button></li>`;
   }
-  
-  // Nút Next
   html += `<li><button onclick="fetchPage(${total},${Math.min(pages, current + 1)}, ${limit})" ${current >= pages ? 'disabled' : ''} class="nav-btn">›</button></li>`;
 
   document.getElementById("panigate_page").innerHTML = `<ul>${html}</ul>`;
@@ -294,14 +277,6 @@ async function fetchPage(total, page, limit) {
 
     const result = await response.json()
     const data = result.result
-    //rkdsjkndsfk
-    // setTimeout(() => {
-    //   renderPaginate(total, page, limit);
-    //   renderTable(data);
-    //   window.addEventListener('load', () => {
-    //     window.scrollTo({ top: 0, behavior: 'smooth' });
-    //   });
-    // }, 100);
     setTimeout(() => {
       renderPaginate(total, page, limit);
       renderTable(data);
@@ -324,8 +299,6 @@ function updatePageInfo() {
   document.getElementById("page-info").textContent = info;
 }
 
-// <td id="idProfile" class="id">${row["Profile_id"]}</td>
-
 function renderTable(data) {
   // Sắp xếp để các profile có Status là 'Completed' lên đầu
   data.sort((a, b) => {
@@ -337,10 +310,10 @@ function renderTable(data) {
                 <tr class="{{ loop.index0 }}">
                     <td id="idProfile" class="id-profile">${row["Profile_id"]}</td>
                     <td>${row["Profile_name"]}</td>
-                    <td>${row["Browser"]}</td>
-                    <td>Http| ${row["Proxy_ip"]}:${row["Proxy_port"]}</td>
+                    <td>${row["Browser_type"]}</td>
+                    <td>${row["Proxy_type"]} || ${row["Proxy_ip"]}:${row["Proxy_port"]}</td>
                     <td class="ngangtoken">${row["Access_token"]}</td>
-                    <td>${row["completed"] === true ? "true" : "false"}</td>
+                    <td>${row["completed"] === true ? "True" : "False"}</td>
                     <td>
                         <div class="action-column">
                             <div class="item-button start-button disabled" data-id="${row['Profile_id']}" onclick="start_action_event(this)">
@@ -407,7 +380,7 @@ async function getTokenEvent() {
       },
       body: JSON.stringify({
         profileCount: profileCount,
-        ids:idProfileArray
+        ids: idProfileArray
       }),
     });
 
@@ -548,7 +521,7 @@ async function getTokenEvent() {
 //       startButton.classList.remove('disabled');
 //       // clearInterval(loadingLoop);
 //     }
-    
+
 
 
 //     // // 2.4 Clear animation
@@ -600,15 +573,15 @@ function animateDots(span) {
 document.addEventListener('DOMContentLoaded', () => {
   // Gán Get token
   document.getElementById('get_token')
-          .addEventListener('click', getTokenEvent);
+    .addEventListener('click', getTokenEvent);
 
   // Delegate Start button
   document.querySelector('#profiles-table tbody')
-          .addEventListener('click', e => {
-    if (e.target.closest('.start-button')) {
-      start_action_event(e.target.closest('.start-button'));
-    }
-  });
+    .addEventListener('click', e => {
+      if (e.target.closest('.start-button')) {
+        start_action_event(e.target.closest('.start-button'));
+      }
+    });
 });
 
 function animateDots(span) {
@@ -704,7 +677,7 @@ function loadSettingsAndAutoLogin() {
 window.addEventListener("DOMContentLoaded", loadSettingsAndAutoLogin);
 
 // Nếu bạn muốn lưu trạng thái autoLogin ngay khi tick/bỏ tick (không cần bấm Save):
-document.getElementById("autoLogin").addEventListener("change", function() {
+document.getElementById("autoLogin").addEventListener("change", function () {
   localStorage.setItem("autoLogin", this.checked ? "1" : "0");
 });
 

@@ -16,26 +16,24 @@ from app.task.startprofile_task import startprofile_task
 from app.task.paginate_task import paginate_task
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from flask import Flask
-from flask_cors import CORS
-from app.task.login_task import login_task
+from app.task.login_task import login_task  
 from app.task.logout_action import logout_task
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
-app = Flask(__name__)
-CORS(app)
+# app = Flask(__name__)
+# CORS(app)
 app = FastAPI()
-app.add_middleware(SessionMiddleware, secret_key="your-secret-key")
+# app.add_middleware(SessionMiddleware, secret_key="your-secret-key")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 def get_base_path():
     if getattr(sys, 'frozen', False):
@@ -100,7 +98,7 @@ async def paginate_page(request: Request, page:int, total:int = Query(13), limit
 
 
 def run_fastapi():
-    uvicorn.run(app, host="127.0.0.1", port=5000)
+    uvicorn.run(app, host="127.0.0.1", port=5500)
 def run_playwright():
     uvicorn.run(app, host="127.0.0.1", port=8800)
 
@@ -114,6 +112,6 @@ if __name__ == "__main__":
 
     time.sleep(1)
 
-    webview.create_window("Get Token", "http://127.0.0.1:5000",width=1400, height=1000)
+    webview.create_window("Get Token", "http://127.0.0.1:5500",width=1400, height=1000)
     webview.start()
 
