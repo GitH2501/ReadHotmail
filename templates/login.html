@@ -1,134 +1,241 @@
 <!DOCTYPE html>
 <html lang="vi">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng Nhập</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-    
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: #f0f2f5;
-            font-family: Arial, sans-serif;
-        }
-    
-        .login-container {
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 320px;
-        }
-    
-        .login-container h2 {
-            text-align: center;
-            margin-bottom: 24px;
-            color: #333;
-        }
-    
-        .login-container label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-size: 14px;
-        }
-    
-        .login-container input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-    
-        .login-container button {
-            width: 100%;
-            padding: 12px;
-            background: #41c441;
-            border: none;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-    
-        .login-container button:hover {
-            background: #45a049;
-        }
-    
-        .message {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 14px;
-        }
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        font-family: Arial, sans-serif;
+      }
+      .login-container {
+        background: none;
+        box-shadow: none;
+        padding: 0;
+        width: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .login-form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .login-form label {
+        font-size: 16px;
+        color: #444;
+        margin-bottom: 4px;
+      }
+      .login-form input[type="text"],
+      .login-form input[type="password"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #cfd8dc;
+        border-radius: 6px;
+        font-size: 16px;
+        background: #fff;
+        outline: none;
+        transition: border 0.2s;
+      }
+      .login-form input[type="text"]:focus,
+      .login-form input[type="password"]:focus {
+        border: 1.5px solid #1976d2;
+      }
+      .input-group {
+        position: relative;
+        width: 100%;
+      }
+      .toggle-password {
+        position: absolute;
+        left: 340px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 30;
+        outline: none;
+      }
+      .toggle-password svg {
+        width: 19.2px;
+        height: 15px;
+        color: #888;
+      }
+      .login-actions {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-top: 0;
+      }
+      .login-form button {
+        padding: 8px 32px;
+        background: #f5f5f5;
+        color: #444;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .login-form button:hover {
+        background: #e0e0e0;
+      }
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+        color: #444;
+      }
+      .message {
+        margin-top: 18px;
+        text-align: center;
+        font-size: 15px;
+        min-height: 20px;
+      }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
-
-<body>
+  </head>
+  <body>
     <div class="login-container">
-        <h2>Đăng Nhập</h2>
-        <label for="username">Tên đăng nhập</label>
-        <input type="text" id="username" placeholder="Nhập tên đăng nhập" />
-        <label for="password">Mật khẩu</label>
-        <input type="password" id="password" placeholder="Nhập mật khẩu" />
-        <button id="loginBtn">Đăng Nhập</button>
+      <form class="login-form" onsubmit="return false;">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          placeholder=""
+          autocomplete="username"
+        />
+        <label for="password">Password</label>
+        <div class="input-group">
+          <input
+            type="password"
+            id="password"
+            placeholder=""
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            tabindex="-1"
+            aria-label="Show/Hide password"
+            onclick="togglePassword()"
+          >
+            <svg
+              id="eyeIcon"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M1 12C2.73 7.61 7.11 4.5 12 4.5C16.89 4.5 21.27 7.61 23 12C21.27 16.39 16.89 19.5 12 19.5C7.11 19.5 2.73 16.39 1 12Z"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <circle
+                cx="12"
+                cy="12"
+                r="3.5"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="login-actions">
+          <button id="loginBtn" type="button">Login</button>
+          <div class="checkbox-group">
+            <input type="checkbox" id="rememberMe" checked />
+            <label for="rememberMe" style="margin-bottom: 0">Remember me</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="autoLogin" />
+            <label for="autoLogin" style="margin-bottom: 0">Auto login?</label>
+          </div>
+        </div>
         <div class="message" id="message"></div>
+      </form>
     </div>
-
     <script>
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value;
-            const msg = document.getElementById('message');
-
-            if (!user || !pass) {
-                msg.style.color = '#e74c3c';
-                msg.textContent = 'Vui lòng điền đầy đủ tài khoản và mật khẩu.';
-                return;
-            }
-
-            msg.style.color = '#333';
-            msg.textContent = 'Đang xử lý…';
-
-            try {
-                const response = await fetch('/login__action', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.message === 'ok') {
-                    msg.style.color = '#27ae60';
-                    msg.textContent = 'Đăng nhập thành công';
-                    window.location.href = '/index';
-                } else {
-                    msg.style.color = '#e74c3c';
-                    msg.textContent = result.message || 'Đăng nhập thất bại';
-                }
-            } catch (err) {
-                msg.style.color = '#e74c3c';
-                msg.textContent = 'Lỗi kết nối hoặc CORS.';
-                console.error(err);
-            }
+      function togglePassword() {
+        const pwd = document.getElementById("password");
+        const eye = document.getElementById("eyeIcon");
+        if (pwd.type === "password") {
+          pwd.type = "text";
+          eye.innerHTML =
+            '<path d="M1 12C2.73 7.61 7.11 4.5 12 4.5C16.89 4.5 21.27 7.61 23 12C21.27 16.39 16.89 19.5 12 19.5C7.11 19.5 2.73 16.39 1 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/><line x1="4" y1="20" x2="20" y2="4" stroke="currentColor" stroke-width="2"/>';
+        } else {
+          pwd.type = "password";
+          eye.innerHTML =
+            '<path d="M1 12C2.73 7.61 7.11 4.5 12 4.5C16.89 4.5 21.27 7.61 23 12C21.27 16.39 16.89 19.5 12 19.5C7.11 19.5 2.73 16.39 1 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/>';
+        }
+      }
+      // Khi load trang, tự động điền username nếu đã lưu
+      window.addEventListener("DOMContentLoaded", function() {
+        const savedUser = localStorage.getItem("rememberedUser");
+        if (savedUser) {
+          document.getElementById("username").value = savedUser;
+          document.getElementById("rememberMe").checked = true;
+        }
+      });
+      document
+        .getElementById("password")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            login();
+          }
         });
-
-
-        
+      document
+        .getElementById("loginBtn")
+        .addEventListener("click", async () => {
+          login();
+        });
+      async function login() {
+        const user = document.getElementById("username").value.trim();
+        const pass = document.getElementById("password").value;
+        const remember = document.getElementById("rememberMe").checked;
+        const msg = document.getElementById("message");
+        if (!user || !pass) {
+          msg.style.color = "#e74c3c";
+          msg.textContent = "Vui lòng điền đầy đủ tài khoản và mật khẩu.";
+          return;
+        }
+        msg.style.color = "#333";
+        msg.textContent = "Đang xử lý…";
+        try {
+          const response = await fetch("/login__action", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: user, password: pass, remember: remember }),
+          });
+          const result = await response.json();
+          if (response.ok && result.message === "ok") {
+            msg.style.color = "#27ae60";
+            msg.textContent = "Đăng nhập thành công";
+            // Lưu username nếu remember, xóa nếu không
+            if (remember) {
+              localStorage.setItem("rememberedUser", user);
+            } else {
+              localStorage.removeItem("rememberedUser");
+            }
+            window.location.href = "/index";
+          } else {
+            msg.style.color = "#e74c3c";
+            msg.textContent = result.message || "Đăng nhập thất bại";
+          }
+        } catch (err) {
+          msg.style.color = "#e74c3c";
+          msg.textContent = "Lỗi kết nối hoặc CORS.";
+          console.error(err);
+        }
+      }
     </script>
-</body>
-
+  </body>
 </html>

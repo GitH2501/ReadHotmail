@@ -12,30 +12,63 @@ import os
 from app.task.import_task import import_profile_task
 from app.task.gettoken_task import gettoken_profile_task
 from fastapi.staticfiles import StaticFiles
-from app.task.startprofile_task import startprofile_task
+from app.task.StartCu import startprofile_task
 from app.task.paginate_task import paginate_task
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from flask import Flask
-from flask_cors import CORS
-from app.task.login_task import login_task
+from app.task.login_task import login_task  
 from app.task.logout_action import logout_task
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi import APIRouter, Request
+import shutil
+import os
+import configparser
 
-app = Flask(__name__)
-CORS(app)
+# app = Flask(__name__)
+# CORS(app)
 app = FastAPI()
+router = APIRouter()
+app.include_router(router)
 app.add_middleware(SessionMiddleware, secret_key="your-secret-key")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+@app.post("/api/profile-folder")
+async def update_profile_folder(request: Request):
+    data = await request.json()
+    old_folder = data.get("oldProfileFolder")
+    new_folder = data.get("newProfileFolder")
+    if old_folder and new_folder and old_folder != new_folder:
+        if os.path.exists(old_folder):
+            if not os.path.exists(new_folder):
+                shutil.copytree(old_folder, new_folder)
+            else:
+                for filename in os.listdir(old_folder):
+                    src = os.path.join(old_folder, filename)
+                    dst = os.path.join(new_folder, filename)
+                    if not os.path.exists(dst):
+                        if os.path.isdir(src):
+                            shutil.copytree(src, dst)
+                        else:
+                            shutil.copy2(src, dst)
+        # Cập nhật profile_path trong config.ini
+        config_path = r"C:\Users\Admin\AppData\Local\tnmhotmail\config.ini"
+        config = configparser.ConfigParser()
+        config.read(config_path)
+        if 'Setting' not in config:
+            config['Setting'] = {}
+        config['Setting']['profile_path'] = new_folder
+        with open(config_path, 'w') as configfile:
+            config.write(configfile)
+        return {"status": "success", "message": "Đã chuyển dữ liệu và cập nhật folder."}
+    return {"status": "error", "message": "Thiếu thông tin hoặc folder không đổi."}
 
 def get_base_path():
     if getattr(sys, 'frozen', False):
@@ -56,6 +89,7 @@ app.mount("/static", StaticFiles(directory=get_static_path()), name="static")
 
 
 
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
@@ -66,7 +100,8 @@ async def login__action(request: Request):
     body = await request.json()
     username=body.get('username')
     password=body.get('password')
-    return login_task(request, username, password)
+    remember=body.get('remember', False)
+    return login_task(request, username, password, remember)
 
 @app.post('/logout__action')
 async def logout__action(request: Request):
@@ -100,7 +135,7 @@ async def paginate_page(request: Request, page:int, total:int = Query(13), limit
 
 
 def run_fastapi():
-    uvicorn.run(app, host="127.0.0.1", port=5000)
+    uvicorn.run(app, host="127.0.0.1", port=5500)
 def run_playwright():
     uvicorn.run(app, host="127.0.0.1", port=8800)
 
@@ -114,6 +149,6 @@ if __name__ == "__main__":
 
     time.sleep(1)
 
-    webview.create_window("Get Token", "http://127.0.0.1:5000",width=1400, height=1000)
+    webview.create_window("Get Token", "http://127.0.0.1:5500",width=1400, height=1000)
     webview.start()
 

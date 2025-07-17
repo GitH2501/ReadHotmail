@@ -161,18 +161,13 @@ def fetch_api_data_batch(profile_ids: List[str]) -> Dict[str, Dict]:
     return results
 
 async def write_sync_localdb_onlinedb_optimized(data_import: List[Dict]) -> bool:
-    """Optimized version with batch processing and parallel API calls"""
+    
     try:
-        # Lưu dữ liệu gốc từ file Excel vào database
+       
         model.writeRawExcel(data_import)
-        # Extract all profile IDs
         profile_ids = [str(item['ID']) for item in data_import]
         
-        # Fetch all API data in parallel
-        print("Đang fetch dữ liệu từ API...")
         api_data = fetch_api_data_batch(profile_ids)
-        
-        # Process data in batches
         batch_size = ImportConfig.BATCH_SIZE
         all_account_profiles = []
         all_browser_profiles = []
@@ -190,6 +185,9 @@ async def write_sync_localdb_onlinedb_optimized(data_import: List[Dict]) -> bool
                 data_eoffice = api_result.get("eoffice", {})
                 
                 # Extract data
+                id = data_item['ID']
+                profile_name = data_item['Profile_name']
+                password = data_item['Password']
                 access_token = hotmail_data.get("access_token") if hotmail_data else None
                 refresh_token = hotmail_data.get("refresh_token") if hotmail_data else None
                 error = hotmail_data.get("error", "null") if hotmail_data else "null"
@@ -200,18 +198,26 @@ async def write_sync_localdb_onlinedb_optimized(data_import: List[Dict]) -> bool
 
                 
                 browser_id = data_eoffice.get("browser", {}).get("id") if data_eoffice else None
+                proxy_type = data_eoffice.get("browser", {}).get("proxy_type", "HTTP") if data_eoffice else "HTTP"
+                proxy_ip = data_eoffice.get("browser", {}).get("proxy_ip") if data_eoffice else None
+                proxy_port = data_eoffice.get("browser", {}).get("proxy_port") if data_eoffice else None
+                proxy_user = data_eoffice.get("browser", {}).get("proxy_user") if data_eoffice else None
+                proxy_pass = data_eoffice.get("browser", {}).get("proxy_pass") if data_eoffice else None
                 fingerprint_id = data_eoffice.get("id") if data_eoffice else None
+
                 finger_info_node = data_eoffice.get("browser", {}).get("finger_info") if data_eoffice else {}
                 
+
+
                 # Build profile data
                 all_account_profiles.append({
-                    "ID": data_item['ID'],
-                    "Profile_name": data_item['Profile_name'],
-                    "Password": data_item['Password'],
+                    "ID": id,
+                    "Profile_name": profile_name,
+                    "Password": password,
                     "Access_token": access_token,
                     "Refresh_token": refresh_token,
                     "error": error,
-                    "Completed": 1 if completed else 0,  # Đúng key schema
+                    "Completed": 1 if completed else 0,
                     "Browser_id": browser_id,
                     "Fingerprint_id": fingerprint_id,
                 })
@@ -219,11 +225,11 @@ async def write_sync_localdb_onlinedb_optimized(data_import: List[Dict]) -> bool
                 all_browser_profiles.append({
                     "ID": browser_id,
                     "Browser_type": data_item['Browser'],
-                    "Proxy_type": "HTTP",
-                    "Proxy_ip": data_item['Proxy_ip'],
-                    "Proxy_port": data_item['Proxy_port'],
-                    "Proxy_user": data_item['Proxy_user'],
-                    "Proxy_pass": data_item['Proxy_pass'],
+                    "Proxy_type": proxy_type,
+                    "Proxy_ip": proxy_ip,
+                    "Proxy_port": proxy_port,
+                    "Proxy_user": proxy_user,
+                    "Proxy_pass": proxy_pass,
                     "Profile_name": data_item['Profile_name'],
                 })
                 
@@ -241,17 +247,13 @@ async def write_sync_localdb_onlinedb_optimized(data_import: List[Dict]) -> bool
                     "Random": finger_info_node.get("DanaFP.webgl.Random"),
                 })
             
-            print(f"Đã xử lý batch {i//batch_size + 1}/{(len(data_import) + batch_size - 1)//batch_size}")
-        
-        # Write to database in parallel
-        print("Đang ghi vào database...")
+          
         await asyncio.gather(
             asyncio.to_thread(browser_model.writeBrowserDB, data=all_browser_profiles),
             asyncio.to_thread(fingerprint_model.writeFingerprintDB, data=all_fingerprint_profiles),
             asyncio.to_thread(account_model.writeAccount, data=all_account_profiles)
         )
         
-        print("Ghi database hoàn thành!")
         return True
         
     except Exception as e:

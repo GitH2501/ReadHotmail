@@ -76,7 +76,9 @@ def workerStartProfile(data_account_profile):
                 'position': position,
                 'ID': '',
                 'action': '',
-                'access_token':data_profile_id['Access_token']
+                'access_token':data_profile_id['Access_token'],
+                'completed': True,
+                'started_but_failed': False
             }
             
         else:
@@ -84,7 +86,9 @@ def workerStartProfile(data_account_profile):
                 'position': position,
                 'ID': ID,
                 'action': 'start',
-                'access_token':''
+                'access_token':'',
+                'started_but_failed': False,
+                'error': 'data_profile_id is None'
             }
 
     
@@ -94,32 +98,4 @@ def workerStartProfile(data_account_profile):
         
 
 
-    # if "localhost" in urlCode:
-    #     code = urlCode.split('?code')[1]
-    # data = graph.get_token_for_code(code=code)
-    # print(f"Get code success: {code}")
-    # # print(f"access_token: {data.get("access_token")}")
-    # if data:
-    #     print("Get token for code url")
-    #     data_dict = {
-    #         "profile_name": profile_name,
-    #         "password": password,
-    #         "browser_id": browser_id,
-    #         "access_token": data.get("access_token"),
-    #         "refresh_token": data.get("refresh_token"),
-    #         "error": "Null",
-    #         "status":"completed",
-    #         "profile_id": f"{profile_id}",
-    #     }
-    #     # hotmail.updateHotmail(id_profile,data_dict)
-    #     # hotmail_api.update_token_hotmail(1, access_token=data.get("access_token"), refresh_token=data.get("refresh_token"))
-    #     hotmail_api.create_hotmail_profile(data_create=data_dict)
-    # return {'success': True}
-    # else:
-    #     return {'success':False}
-    # else:
-    #     return {'success':False}
-    
-    # data_hotmail = hotmail.readHotmailForID(id_profile)
-    
     
