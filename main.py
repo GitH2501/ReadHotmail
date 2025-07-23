@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import Request
 import sys
 import os
-from app.task.import_task import import_profile_task
+from app.task.import_task_old import import_profile_task
 from app.task.gettoken_task import gettoken_profile_task
 from fastapi.staticfiles import StaticFiles
 from app.task.startprofile_task import startprofile_task
@@ -18,22 +18,30 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from app.task.login_task import login_task  
 from app.task.logout_action import logout_task
+from app.task.pushtoken_task import push_token_task
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
+from flask_cors import CORS
+
 
 # app = Flask(__name__)
 # CORS(app)
 app = FastAPI()
-# app.add_middleware(SessionMiddleware, secret_key="your-secret-key")
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+origins = [
+    "chrome-extension://*",
+    "https://*",
+    "http://*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # hoặc ['*'] để cho phép tất cả
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_base_path():
     if getattr(sys, 'frozen', False):
@@ -52,7 +60,7 @@ def get_static_path():
 templates = Jinja2Templates(directory=get_templates_path())
 app.mount("/static", StaticFiles(directory=get_static_path()), name="static")
 
-
+# CORS(app, origins=["chrome-extension://*", "https://*", "http://*"])
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
@@ -87,28 +95,31 @@ async def get_token_action(request: Request):
 async def start__action(request: Request):
     return await startprofile_task(request)
 
-@app.get('/pushcode__action', response_class=HTMLResponse)
-async def pushcode__action(request: Request):
-    return templates.TemplateResponse("popup.html", {"request": request})
-
 @app.get('/paginate_page/{page}')
 async def paginate_page(request: Request, page:int, total:int = Query(13), limit:int = Query(13)):
     return paginate_task(request, page, total, limit)
 
+@app.get('/popup')
+def popup(request: Request):
+   return templates.TemplateResponse("popup.html", {"request": request})
+
+@app.post('/push_token')
+async def push_code(request: Request):
+    return await push_token_task(request)
 
 
 def run_fastapi():
     uvicorn.run(app, host="127.0.0.1", port=5500)
-def run_playwright():
+def run_popup():
     uvicorn.run(app, host="127.0.0.1", port=8800)
 
 
 if __name__ == "__main__":
     
-    print("Starting FastAPI server...")  # Debugging: print a message when the server starts
+    print("Starting FastAPI server...")
     api_thread = threading.Thread(target=run_fastapi, daemon=True)
     api_thread.start()
-    threading.Thread(target=run_playwright, daemon=True).start()
+    threading.Thread(target=run_popup, daemon=True).start()
 
     time.sleep(1)
 

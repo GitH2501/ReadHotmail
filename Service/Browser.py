@@ -1,4 +1,4 @@
-
+import re
 import random
 import json
 import string
@@ -14,7 +14,8 @@ from Service.Config import create_dir_path_save_profile, create_dir_path_save_ex
 from Service.Bypass import bypass
 # from Config import create_dir_path_save_profile, create_dir_path_save_extension
 # from Bypass import bypass
-
+import asyncio
+import websockets
 
 class BrowserContext:
 
@@ -103,11 +104,11 @@ class BrowserContext:
         bypass_js = bypass()
         return f"const DanaFP = {json.dumps(fp_json)};\n{bypass_js}"
 
-    def load_extension(self):
+    def parse_extension_dir(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         path_to_fill_info_ext = os.path.abspath(os.path.join(base_dir,"..", "extension", "fill_info_extension"))
         path_to_proxy_auth_ext = os.path.abspath(os.path.join(base_dir,"..", "extension", "proxy_auth_extension"))
-
+        
 
         if not os.path.exists(path_to_fill_info_ext):
             print(f"File extension không tồn tại: {path_to_fill_info_ext}")
@@ -116,16 +117,21 @@ class BrowserContext:
         if not os.path.exists(path_to_proxy_auth_ext):
             print(f"File extension không tồn tại: {path_to_proxy_auth_ext}")
             return
+
         
+
+
         ext_path = f"{path_to_fill_info_ext},{path_to_proxy_auth_ext}"
         return ext_path
 
     def create_user_data_dir(self, id_profile):
         user_data_dir = create_dir_path_save_profile(id_profile)
         return user_data_dir
+    def create_extension_dir(self, id_profile):
+        user_data_dir = create_dir_path_save_profile(id_profile)
+        extension_dir = os.path.join(user_data_dir, "profile",f'{id}')
 
     def run_browser(self):
-        id_profile = self.data_profile['ID']
         username = self.data_profile['Profile_name']
         password = self.data_profile['Password']
         browser_id = self.data_profile['Browser_id']
@@ -137,11 +143,11 @@ class BrowserContext:
         proxy_type = self.data_profile['Proxy_type'].lower()
          
         fp = self.generate_fingerprint()
-        
-    
-        user_data_dir = self.create_user_data_dir(id_profile)
-        ext_path = self.load_extension()
-       
+        user_data_dir = self.create_user_data_dir(profile_id)
+        ext_path = self.parse_extension_dir()
+        # ext_path = f"C:\\Users\\NamVT\\AppData\\Local\\tnmhotmail\\profile\\99876\\proxy_auth_extension"
+
+
         with sync_playwright() as playwright:
             context = playwright.chromium.launch_persistent_context(
                 user_data_dir,
@@ -201,14 +207,14 @@ class BrowserContext:
                 bypass_csp=True,
             )
 
-            
+
+           
+            # self.load_proxy_info(context, proxy_ip, proxy_port, proxy_user, proxy_pass, proxy_type)
             inject_js = self.build_js_injection(fp)
             context.add_init_script(inject_js)
-            
-
-            page0 = context.new_page()
-            page0.goto("http://127.0.0.1:8800/pushcode__action", wait_until="load")
-            page0.evaluate(
+            popup_page = context.new_page()
+            popup_page.goto("http://127.0.0.1:8800/popup", wait_until="load")
+            popup_page.evaluate(
                 """({username, password, browser_id, profile_id}) => {
                     localStorage.setItem("username", username);
                     localStorage.setItem("password", password);
@@ -221,7 +227,6 @@ class BrowserContext:
 
 
             page = context.new_page()
-
             if len(context.service_workers) == 0:
                 print("Waiting for service worker...")
                 try:
@@ -239,15 +244,19 @@ class BrowserContext:
                 background = context.service_workers[0]
                 print("Service worker already exists:", background.url)
 
+
             try:
                 page.goto(self.URLs, wait_until="load")
                 time.sleep(10)
                 page.evaluate(
-                """({username, password}) => {
+                """({username, password, browser_id, profile_id}) => {
                     localStorage.setItem("username", username);
                     localStorage.setItem("password", password);
+                    localStorage.setItem("browser_id", browser_id);
+                    localStorage.setItem("profile_id", profile_id);
+
                 }""",
-                { "username": username, "password": password }
+                { "username": username, "password": password,  "browser_id":browser_id, "profile_id":profile_id}
             )
             except Exception as a:
                 print("lỗi rồi nhé",a)
@@ -282,8 +291,8 @@ class BrowserContext:
         return is_stop               
 
 
-# if __name__ == "__main__":
-#     b = BrowserContext()
-#     # b.init_browser(id_profile="12345", browser="chrome", fingerprint=None)
-#     # asyncio.run(b.run_browser())
-#     b.run_browser()
+if __name__ == "__main__":
+    b = BrowserContext()
+    # b.init_browser(id_profile="12345", browser="chrome", fingerprint=None)
+    # asyncio.run(b.run_browser())
+    b.run_browser()

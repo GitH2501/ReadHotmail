@@ -105,7 +105,8 @@ main .main-top {
   overflow-x: auto;
 }
 
-th.token-col, td.token-col {
+th.token-col,
+td.token-col {
   max-width: 220px;
   min-width: 120px;
   white-space: nowrap;
@@ -113,6 +114,7 @@ th.token-col, td.token-col {
   text-overflow: ellipsis;
   word-break: break-all;
 }
+
 .ngangtoken {
   max-width: 220px;
   min-width: 120px;
@@ -159,7 +161,6 @@ tr:hover {
   display: flex;
   align-items: center;
   gap: 2px;
-  /* Khoảng cách giữa icon và text */
   padding: 5px 5px;
   color: black;
   border: 2px solid #cccccc;
@@ -168,6 +169,7 @@ tr:hover {
   cursor: pointer;
   transition: background-color 0.2s ease;
   width: 50px;
+  height: 35px;
   margin-right: 10px;
 }
 
@@ -395,6 +397,7 @@ footer {
     border-bottom: 1px solid #e0e0e0;
   }
 }
+
 .action-column {
   display: flex;
   justify-content: center;

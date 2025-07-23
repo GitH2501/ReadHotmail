@@ -12,6 +12,7 @@ class GraphAPI:
     _grant_type = ""
     _redirect_uri = ""
     _url = ""
+    _scope = ""
     header = {}
     body = {}
     
@@ -19,12 +20,13 @@ class GraphAPI:
     #     self.code = code
 
 
-    def get_token_for_code(self,code):
+    def get_token_by_code(self,code):
 
         self._client_id = "9e5f94bc-e8a4-4e73-b8be-63364c29d753"
         self._grant_type = "authorization_code"
         self._redirect_uri = "https://localhost"
         self._url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+        self._scope = "https://graph.microsoft.com/User.Read offline_access"
         self.code = code
 
         self.header = {
@@ -34,6 +36,7 @@ class GraphAPI:
             'client_id': self._client_id,
             'grant_type': self._grant_type,
             'redirect_uri': self._redirect_uri,
+            'scope': self._scope,
             'code':self.code
         }
 

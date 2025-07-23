@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "KDP Info",
+  "name": "Hotmail Info",
   "version": "1.0",
   "description": "Addon auto fill info",
   "action": {
@@ -33,6 +33,7 @@
         "https://thenewmoonteam.com/*"
       ],
       "js": [
+        "libs/otplib.umd.min.js",
         "js/jquery.js",
         "content.js"
       ],
@@ -50,6 +51,7 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "libs/otplib.umd.min.js",
         "js/jquery.js",
         "js/my.css"
       ],

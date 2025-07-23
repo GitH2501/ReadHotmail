@@ -15,7 +15,6 @@ function saveSettings() {
     data: JSON.stringify({ profileFolder: newFolder }),
     success: function (response) {
       alert('Đã lưu đường dẫn mới!');
-      // Có thể reload lại app hoặc cập nhật UI nếu cần
     }
   });
 }
@@ -280,7 +279,6 @@ async function fetchPage(total, page, limit) {
     setTimeout(() => {
       renderPaginate(total, page, limit);
       renderTable(data);
-      // <-- Thêm getTokenEvent() ở đây
       window.addEventListener('load', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
@@ -300,7 +298,6 @@ function updatePageInfo() {
 }
 
 function renderTable(data) {
-  // Sắp xếp để các profile có Status là 'Completed' lên đầu
   data.sort((a, b) => {
     if ((a["completed"] === 'true' && b["completed"] !== 'true')) return -1;
     if ((a["completed"] !== 'true' && b["completed"] === 'true')) return 1;
@@ -390,7 +387,6 @@ async function getTokenEvent() {
       const start_action_ele_array = document.querySelectorAll(".start-button");
       for (const actionItem of actionArray) {
         if (actionItem["action"] === "start") {
-          // Tìm đúng nút theo data-id
           const btn = document.querySelector(`.start-button[data-id="${actionItem["ID"]}"]`);
           if (btn) btn.classList.remove("disabled");
         }
@@ -398,7 +394,7 @@ async function getTokenEvent() {
         const row = document.querySelector(`.start-button[data-id="${actionItem["ID"]}"]`)?.closest("tr");
         if (row && typeof actionItem["completed"] !== "undefined") {
           const completedCell = row.querySelector("td[status-cell]") || row.querySelector("td:nth-child(6)");
-          if (completedCell) completedCell.textContent = actionItem["completed"] ? "true" : "false";
+          if (completedCell) completedCell.textContent = actionItem["completed"] ? "True" : "False";
         }
       }
     } else {
@@ -409,156 +405,6 @@ async function getTokenEvent() {
   }
 }
 
-// 1) Hàm Get Token — gọi backend trả về list action, và apply lên từng row
-// async function getTokenEvent() {
-//   const rows = Array.from(document.querySelectorAll('tbody tr'));
-
-//   // 1) Gọi backend
-//   try {
-//     const res = await fetch('get_token__action', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ profileCount: rows.length })
-//     });
-//     const payload = await res.json();
-
-//     if (payload.status_code === 200) {
-//       const actionArray = payload.data;
-
-//       rows.forEach(row => {
-//         const btn = row.querySelector('.start-button');
-//         if (btn) {
-//           btn.classList.remove('disabled');
-//           btn.disabled = false;
-//         }
-//       });
-
-//       actionArray.forEach(item => {
-//         const idx = item.position;
-//         const row = rows[idx];
-//         if (!row) return;
-//         const btn = row.querySelector('.start-button');
-//         if (!btn) return;
-
-//         if (item.action === 'start') {
-//           btn.classList.remove('disabled');
-//           btn.disabled = false;
-//         } else {
-//           btn.classList.add('disabled');
-//           btn.disabled = true;
-//         }
-//       });
-//     } else {
-//       console.error('Lỗi get_token__action:', payload.message);
-//     }
-//   } catch (err) {
-//     console.error('Lỗi khi gọi get_token__action:', err);
-//   }
-
-//   rows.forEach(row => {
-//     const statusCell =
-//       row.querySelector('.status-cell') ||
-//       row.querySelector('td:nth-child(6)');
-//     const st = (statusCell?.textContent || '').trim().toLowerCase();
-//     const btn = row.querySelector('.start-button');
-//     if (!btn) return;
-
-//     if (st === 'Completed') {
-//       btn.classList.add('disabled');
-//       btn.disabled = true;
-//     } else {
-//       btn.classList.remove('disabled');
-//       btn.disabled = false;
-//     }
-//   });
-// }
-
-
-
-// 2) Hàm Start — gọi backend để chạy, luôn re-enable nếu gặp lỗi, chỉ lock khi thật sự Completed
-// async function start_action_event(el) {
-//   // const btn        = el;
-//   // const row        = btn.closest('tr');
-//   // const statusCell = row.querySelector('.status-cell');
-//   // const tokenCell  = row.querySelector('.ngangtoken');
-//   // const span       = btn.querySelector('span');
-//   // const img        = btn.querySelector('img');
-
-//   // // 2.1 Kiểm tra ban đầu
-//   // const st0 = (statusCell.textContent || '').trim().toLowerCase();
-//   // if (st0 === 'Completed') {
-//   //   btn.classList.add('disabled');
-//   //   btn.disabled = true;
-//   //   return;
-//   // }
-
-//   // 2.2 Bật animation + disable tạm
-//   // btn.classList.add('starting');
-//   // btn.classList.remove('disabled');
-//   // btn.disabled = true;
-//   // img.style.display   = 'none';
-//   // span.textContent    = '';
-//   // const loadingLoop   = animateDots(span);
-//   const startButton = document.querySelector(".start-button");
-//   try {
-//     // 2.3 Gọi API start
-//     const res  = await fetch('start__action', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ id_profile: btn.dataset.id })
-//     });
-
-//     if (!res.ok) {
-//       console.log("!res.ok")
-//       return
-//     }
-//     const data = await res.json();
-//     const id = data.ID;
-//     const action = data.action;
-//     console.log(action)
-
-//     if (action === "start") {
-//       startButton.classList.remove('disabled');
-//       // clearInterval(loadingLoop);
-//     }
-
-
-
-//     // // 2.4 Clear animation
-//     // clearInterval(loadingLoop);
-//     // btn.classList.remove('starting');
-//     // img.style.display = 'block';
-//     // span.textContent  = 'Start';
-
-//     // // 2.5 Cập nhật token/status nếu có
-//     // if (data.Access_token != null) {
-//     //   tokenCell.textContent = data.Access_token;
-//     // }
-//     // if (data.Status != null) {
-//     //   statusCell.textContent = data.Status;
-//     // }
-
-//     // // 2.6 Disable chỉ khi backend trả về Completed
-//     // const st1 = (data.Status || '').trim().toLowerCase();
-//     // if (st1 === 'Completed') {
-//     //   btn.classList.add('disabled');
-//     //   btn.disabled = true;
-//     // } else {
-//     //   btn.classList.remove('disabled');
-//     //   btn.disabled = false;
-//     // }
-//   } catch (err) {
-//     // 2.7 Nếu lỗi thì re-enable để retry
-//     clearInterval(loadingLoop);
-//     btn.classList.remove('starting');
-//     img.style.display = 'block';
-//     span.textContent  = 'Start';
-//     btn.classList.remove('disabled');
-//     btn.disabled = false;
-//     statusCell.textContent = 'error';
-//     console.error('Lỗi start_action_event:', err);
-//   }
-// }
 
 // 3) Animation dots
 function animateDots(span) {
@@ -566,23 +412,23 @@ function animateDots(span) {
   return setInterval(() => {
     count = (count + 1) % 16;
     span.textContent = '.'.repeat(count);
-  }, 500);
+  }, 0);
 }
 
-// 4) Gắn sự kiện sau khi DOM sẵn sàng
-document.addEventListener('DOMContentLoaded', () => {
-  // Gán Get token
-  document.getElementById('get_token')
-    .addEventListener('click', getTokenEvent);
+// // 4) Gắn sự kiện sau khi DOM sẵn sàng
+// document.addEventListener('DOMContentLoaded', () => {
+//   // Gán Get token
+//   document.getElementById('get_token')
+//     .addEventListener('click', getTokenEvent);
 
-  // Delegate Start button
-  document.querySelector('#profiles-table tbody')
-    .addEventListener('click', e => {
-      if (e.target.closest('.start-button')) {
-        start_action_event(e.target.closest('.start-button'));
-      }
-    });
-});
+//   // Delegate Start button
+//   document.querySelector('#profiles-table tbody')
+//     .addEventListener('click', e => {
+//       if (e.target.closest('.start-button')) {
+//         start_action_event(e.target.closest('.start-button'));
+//       }
+//     });
+// });
 
 function animateDots(span) {
   let dotCount = 0;
@@ -595,11 +441,13 @@ function animateDots(span) {
 
 async function start_action_event(element) {
   const profileID = element.getAttribute("data-id");
+  const trElement = element.closest("tr");
+  const accessTokenElement = trElement.querySelector("#access_token");
+  const statusElement = trElement.querySelector('td[status-cell]');
   const startElement = element.querySelector("span");
   const imageElement = element.querySelector("img");
-
-  console.log(profileID)
   const loadingInterval = animateDots(startElement);
+
   element.classList.add("starting");
   imageElement.style.display = "none";
 
@@ -624,11 +472,11 @@ async function start_action_event(element) {
     startElement.innerHTML = "Start";
     element.classList.remove("starting");
 
-    if (action === "start" && access_token) {
-      // Đã lấy token thành công, disable nút
+    if (action === null && access_token !== null) {
+      accessTokenElement.textContent = shortenToken(access_token, 40);
+      statusElement.textContent = "True";
       element.classList.add("disabled");
     } else {
-      // Không lấy được token, enable lại nút
       element.classList.remove("disabled");
     }
   } catch (err) {
@@ -640,7 +488,11 @@ async function start_action_event(element) {
     console.error('Lỗi start_action_event:', err);
   }
 }
-
+function shortenToken(token, maxLength = 10) {
+  if (!token) return "";
+  if (token.length <= maxLength) return token;
+  return token.slice(0, maxLength) + '...';
+}
 function saveSettings() {
   // Lưu đường dẫn profile
   const folder = document.getElementById("profileFolder").value;

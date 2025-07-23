@@ -15,7 +15,7 @@ from Service.Browser import BrowserContext
 from api.HotmailAPI import HotmailAPI
 from fastapi.responses import JSONResponse, HTMLResponse
 from models.model import Model
-
+import asyncio
 
 graph = GraphAPI()
 account_local = Account()
@@ -28,20 +28,19 @@ model = Model()
 
 
 async def startprofile_task(request):
-
-
     data = await request.json()
     id_profile = data.get('id_profile')
 
-    print(f"Start profile with ID: {id_profile}")
     data_account_profile = account_local.readAccountForID(id_profile)
-    future = executor.submit(workerStartProfile, data_account_profile)
-    
-    result = future.result()
-    print(result)
+
+
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(executor, workerStartProfile, data_account_profile)
+    # future = executor.submit(workerStartProfile, data_account_profile)
+    # result = future.result()
     return JSONResponse(
         content={
-            'position': result['position'],
+            # 'position': result['position'],
             'ID': result['ID'],
             'action': result['action'],
             'access_token' : result['access_token']
@@ -69,22 +68,23 @@ def workerStartProfile(data_account_profile):
     browser.init_browser(data_profile)
     is_stop = browser.run_browser()
     if is_stop:
+        print(f"Profile {ID} is stopped")
         data_profile_id = model.getProfileID(ID)
-        position = 1
-        if data_profile_id['Access_token'] != "null" and data_profile_id['Refresh_token'] != "null":
+        # position = 1
+        if data_profile_id['Access_token'] != None and data_profile_id['Refresh_token'] != None:
             return {
-                'position': position,
-                'ID': '',
-                'action': '',
+                # 'position': position,
+                'ID': data_profile_id["ID"],
+                'action': None,
                 'access_token':data_profile_id['Access_token']
             }
             
         else:
             return {
-                'position': position,
-                'ID': ID,
+                # 'position': position,
+                'ID': data_profile_id["ID"],
                 'action': 'start',
-                'access_token':''
+                'access_token':None
             }
 
     

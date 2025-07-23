@@ -15,15 +15,10 @@ chrome.runtime.onMessage.addListener(
             let username = localStorage.getItem('username');
             let pass = localStorage.getItem('password')
 
-            console.log("username:", username);
-            console.log("password:", pass)
-            // console.log("password:", password);
             if (username && pass) {
                 chrome.storage.local.set({ "username": username }).then(() => {
-                    console.log("OK1");
                 });
                 chrome.storage.local.set({ "password": pass }).then(() => {
-                    console.log("OK2");
                 })
 
             }
@@ -33,17 +28,14 @@ chrome.runtime.onMessage.addListener(
                     let password = result.password;
 
                     if ($('#i0116').length) {
-                        console.log("Fill email:", email);
                         $('#i0116').val(email);
 
                     }
-                    if ($('#passwordEntry').length || getElementByXPath("//input[@name='passwd']")) { // Nếu input email có tồn tại
-                        console.log("Fill pass:", password);
+                    if ($('#passwordEntry').length || getElementByXPath("//input[@name='passwd']")) {
                         $('#passwordEntry').val(password);
                     }
                     let passwordField = getElementByXPath("//input[@name='passwd']");
                     if (passwordField) {
-                        console.log("Fill pass");
                         passwordField.value = password;
 
                         // Bắn sự kiện để web nhận giá trị mới
